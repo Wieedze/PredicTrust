@@ -1,0 +1,31 @@
+<svg width="220" height="220" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond -->
+  <rect width="100%" height="100%" fill="#000"/>
+
+  <!-- Anneau extérieur (segments variés, non symétriques) -->
+  <g fill="none" stroke="#fff" stroke-linecap="round">
+    <circle cx="110" cy="110" r="92"
+            stroke-width="8"
+            stroke-dasharray="64 20 12 22 44 18 10 22 26 18"
+            transform="rotate(-18 110 110)"/>
+  </g>
+
+  <!-- Paupière / arc supérieur -->
+  <path d="M52 98 Q110 52 172 112"
+        fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Spirale centrale CONTINUE -->
+  <path
+    d="M145 110
+       C145 86 126 70 105 70
+       C78 70 58 92 58 117
+       C58 147 84 168 112 168
+       C145 168 170 143 170 112
+       C170 74 139 46 103 46
+       C62 46 30 78 30 118
+       C30 164 68 198 113 198"
+    fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Terminaison au centre (pupille) -->
+  <circle cx="113" cy="198" r="5" fill="#fff"/>
+</svg>

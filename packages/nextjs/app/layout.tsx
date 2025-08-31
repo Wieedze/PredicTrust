@@ -1,7 +1,6 @@
 import { Space_Grotesk } from "next/font/google";
 import "@rainbow-me/rainbowkit/styles.css";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
-import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
@@ -11,17 +10,15 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata = getMetadata({
-  title: "Prediction Markets | SpeedRunEthereum",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  title: "PredicTrust | Decentralized Prediction Markets",
+  description: "Trade on future outcomes with PredicTrust - Built on Intuition Blockchain",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html suppressHydrationWarning className={`${spaceGrotesk.variable} font-space-grotesk`}>
-      <body>
-        <ThemeProvider enableSystem>
-          <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
-        </ThemeProvider>
+    <html suppressHydrationWarning className={`${spaceGrotesk.variable} font-space-grotesk`} data-theme="dark">
+      <body className="bg-black text-white">
+        <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
       </body>
     </html>
   );

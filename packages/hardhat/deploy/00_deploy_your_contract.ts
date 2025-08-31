@@ -23,13 +23,24 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
+  // Utiliser différents comptes Hardhat pour tester les rôles
+  const accounts = await hre.ethers.getSigners();
+  const deployerAccount = accounts[0]; // Deployer (compte 0)
+  const oracleAccount = accounts[1]; // Oracle (compte 1)
+  const liquidityProviderAccount = accounts[2] || accounts[0]; // LP (compte 2 ou 0 par défaut)
+
   const question = "Will the green car win the race?";
   const initialLiquidity = ethers.parseEther("1");
   const initialTokenValue = ethers.parseEther("0.01");
   const initialProbability = 50;
   const percentageLocked = 10;
-  const liquidityProvider = deployer;
-  const oracle = deployer;
+  const liquidityProvider = liquidityProviderAccount.address;
+  const oracle = oracleAccount.address;
+
+  console.log("📋 Configuration du déploiement:");
+  console.log("🏭 Deployer:", deployerAccount.address);
+  console.log("💧 Liquidity Provider:", liquidityProvider);
+  console.log("🔮 Oracle:", oracle);
 
   await deploy("PredictionMarket", {
     from: deployer,

@@ -103,7 +103,16 @@
 
 :root,
 [data-theme] {
-  background: var(--color-base-200);
+  background: #000000;
+}
+
+html {
+  background: #000000;
+}
+
+body {
+  background: #000000;
+  color: #ffffff;
 }
 
 .btn {
@@ -156,28 +165,28 @@
 @plugin "daisyui/theme" {
   name: "dark";
 
-  --color-primary: #026262;
-  --color-primary-content: #c8f5ff;
-  --color-secondary: #107575;
-  --color-secondary-content: #e9fbff;
-  --color-accent: #c8f5ff;
-  --color-accent-content: #088484;
-  --color-neutral: #e9fbff;
-  --color-neutral-content: #11acac;
-  --color-base-100: #11acac;
-  --color-base-200: #088484;
-  --color-base-300: #026262;
-  --color-base-content: #e9fbff;
-  --color-info: #c8f5ff;
-  --color-success: #34eeb6;
-  --color-warning: #ffcf72;
-  --color-error: #ff8863;
+  --color-primary: #6366f1;
+  --color-primary-content: #ffffff;
+  --color-secondary: #8b5cf6;
+  --color-secondary-content: #ffffff;
+  --color-accent: #06b6d4;
+  --color-accent-content: #ffffff;
+  --color-neutral: #374151;
+  --color-neutral-content: #ffffff;
+  --color-base-100: #000000;
+  --color-base-200: #111111;
+  --color-base-300: #1f1f1f;
+  --color-base-content: #ffffff;
+  --color-info: #3b82f6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
 
   --radius-field: 9999rem;
   --radius-box: 1rem;
 
   --tt-tailw: 6px;
-  --tt-bg: var(--color-primary); /* if you need a tooltip bg override */
+  --tt-bg: var(--color-primary);
 }
 
 @theme inline {
