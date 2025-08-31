@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BarChart3, Coins, Zap } from "lucide-react";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
+import { IntuitionStats } from "~~/components/IntuitionStats";
 import { ParticleBackground } from "~~/components/ParticleBackground";
 import { Address } from "~~/components/scaffold-eth";
 import { Button } from "~~/components/ui/button";
@@ -42,17 +43,20 @@ const Home: NextPage = () => {
             )}
 
             <div className="flex gap-4 justify-center flex-col sm:flex-row mb-16">
-              <Link href="/predictions">
+              <Link href="/ttrust-predictions">
                 <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 text-lg">
-                  🎯 Start Predicting
+                  💎 TTrust Markets
                 </Button>
               </Link>
               <Link href="/predictions">
                 <Button variant="outline" className="border-gray-500 text-gray-300 hover:bg-gray-800 px-8 py-3 text-lg">
-                  📊 Explore Markets
+                  📊 Classic Markets
                 </Button>
               </Link>
             </div>
+
+            {/* Real-time Stats */}
+            <IntuitionStats className="mb-16" />
           </div>
 
           {/* Glass Cards Features */}

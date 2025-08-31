@@ -29,7 +29,7 @@ export const intuitionTestnet = defineChain({
   testnet: true,
   contracts: {
     multicall3: {
-      address: "0x0000000000000000000000000000000000000000", // replace if needed
+      address: "0x0000000000000000000000000000000000000000", // replace
       blockCreated: 1,
     },
   },
