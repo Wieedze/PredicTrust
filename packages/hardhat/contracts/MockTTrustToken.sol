@@ -15,8 +15,6 @@ contract MockTTrustToken is IERC20, Ownable {
     /// Events //////
     /////////////////
     
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
     event Mint(address indexed to, uint256 amount);
     event Burn(address indexed from, uint256 amount);
 

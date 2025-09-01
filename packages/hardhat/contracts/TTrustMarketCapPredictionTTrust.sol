@@ -404,7 +404,7 @@ contract TTrustMarketCapPredictionTTrust is Ownable {
         yesTokenPrice = predictionMarket.getBuyPriceInTTrust(PredictionMarketTTrust.Outcome.YES, 1 ether);
         noTokenPrice = predictionMarket.getBuyPriceInTTrust(PredictionMarketTTrust.Outcome.NO, 1 ether);
         
-        (,,,,,yesTokenReserve, noTokenReserve,, yesToken, noToken,,,,,, ) = predictionMarket.getPrediction();
+        (,,,, ,yesTokenReserve, noTokenReserve, , yesToken, noToken, , , , , , , ) = predictionMarket.getPrediction();
     }
 
     /**
