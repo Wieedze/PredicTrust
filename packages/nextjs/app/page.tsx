@@ -44,13 +44,8 @@ const Home: NextPage = () => {
 
             <div className="flex gap-4 justify-center flex-col sm:flex-row mb-16">
               <Link href="/ttrust-predictions">
-                <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 text-lg">
-                  💎 TTrust Markets
-                </Button>
-              </Link>
-              <Link href="/predictions">
-                <Button variant="outline" className="border-gray-500 text-gray-300 hover:bg-gray-800 px-8 py-3 text-lg">
-                  📊 Classic Markets
+                <Button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-12 py-4 text-xl">
+                  🚀 Enter PredicTrust
                 </Button>
               </Link>
             </div>
@@ -107,7 +102,7 @@ const Home: NextPage = () => {
                 <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
                   Join the future of prediction markets. Connect your wallet and place your first prediction today.
                 </p>
-                <Link href="/predictions">
+                <Link href="/ttrust-predictions">
                   <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-12 py-4 text-xl">
                     🚀 Enter PredicTrust
                   </Button>

@@ -1,0 +1,781 @@
+{
+  "address": "0x9c8396223B7349fb16410D95fBBb5D5E4425Ed45",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_initialPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_initialMarketCap",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TTrustPriceOracle__InvalidDEXAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TTrustPriceOracle__InvalidPrice",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TTrustPriceOracle__OnlyTrustedUpdater",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TTrustPriceOracle__PriceStale",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "priceFeed",
+          "type": "address"
+        }
+      ],
+      "name": "BackupPriceFeedSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "router",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "pair",
+          "type": "address"
+        }
+      ],
+      "name": "DEXRouterSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "marketCap",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "updater",
+          "type": "address"
+        }
+      ],
+      "name": "PriceUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "updater",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "trusted",
+          "type": "bool"
+        }
+      ],
+      "name": "TrustedUpdaterSet",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "PRECISION",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PRICE_STALENESS_THRESHOLD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "backupPriceFeed",
+      "outputs": [
+        {
+          "internalType": "contract AggregatorV3Interface",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "currentPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "marketCap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isValid",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dexRouter",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getAllPriceData",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "marketCap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isValid",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "isStale",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMarketCap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "marketCap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getPriceFromDEX",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "price",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "invalidatePrice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "isPriceValid",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_priceFeed",
+          "type": "address"
+        }
+      ],
+      "name": "setBackupPriceFeed",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_router",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_pair",
+          "type": "address"
+        }
+      ],
+      "name": "setDEXAddresses",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_updater",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_trusted",
+          "type": "bool"
+        }
+      ],
+      "name": "setTrustedUpdater",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "trustedUpdaters",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ttustIntuitPair",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_price",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_marketCap",
+          "type": "uint256"
+        }
+      ],
+      "name": "updatePrice",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xca8c9f25cee8098836ade633aded568f02841273c7310992ed171072a37630d4",
+  "receipt": {
+    "to": null,
+    "from": "0x0B940A81271aD090AbD2C18d1a5873e5cb93D42a",
+    "contractAddress": "0x9c8396223B7349fb16410D95fBBb5D5E4425Ed45",
+    "transactionIndex": 1,
+    "gasUsed": "628994",
+    "logsBloom": "0x00000000000000000000000000000000000000000002008000800000000100000000000000000000000000000000000000000000000000000000000008000000000010000000200000000000000000000001000000000000000000000000000000002000020010000000000100000800000000000000000000000000000000400000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000020000000000000000000000100000000000000200010000000001000000000000000",
+    "blockHash": "0x959e71f56e1718362856d11bd7e62f68a921836545f07bc4880d85592f354e14",
+    "transactionHash": "0xca8c9f25cee8098836ade633aded568f02841273c7310992ed171072a37630d4",
+    "logs": [
+      {
+        "transactionIndex": 1,
+        "blockNumber": 2778466,
+        "transactionHash": "0xca8c9f25cee8098836ade633aded568f02841273c7310992ed171072a37630d4",
+        "address": "0x9c8396223B7349fb16410D95fBBb5D5E4425Ed45",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000000b940a81271ad090abd2c18d1a5873e5cb93d42a"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0x959e71f56e1718362856d11bd7e62f68a921836545f07bc4880d85592f354e14"
+      },
+      {
+        "transactionIndex": 1,
+        "blockNumber": 2778466,
+        "transactionHash": "0xca8c9f25cee8098836ade633aded568f02841273c7310992ed171072a37630d4",
+        "address": "0x9c8396223B7349fb16410D95fBBb5D5E4425Ed45",
+        "topics": [
+          "0x4f0aa5fab7aa20059cc56368985fcf440c02c1d0229156bcfefad462cae1893d",
+          "0x00000000000000000000000000000000000000000000000006f05b59d3b20000",
+          "0x0000000000000000000000000000000000000000000069e10de76676d0800000"
+        ],
+        "data": "0x0000000000000000000000000000000000000000000000000000000068b5bafe0000000000000000000000000b940a81271ad090abd2c18d1a5873e5cb93d42a",
+        "logIndex": 1,
+        "blockHash": "0x959e71f56e1718362856d11bd7e62f68a921836545f07bc4880d85592f354e14"
+      }
+    ],
+    "blockNumber": 2778466,
+    "cumulativeGasUsed": "628994",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x0B940A81271aD090AbD2C18d1a5873e5cb93D42a",
+    "500000000000000000",
+    "500000000000000000000000"
+  ],
+  "numDeployments": 2,
+  "solcInputHash": "432e399050d7b3f6d87963cda7d22c18",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_initialPrice\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_initialMarketCap\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TTrustPriceOracle__InvalidDEXAddress\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TTrustPriceOracle__InvalidPrice\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TTrustPriceOracle__OnlyTrustedUpdater\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"TTrustPriceOracle__PriceStale\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"priceFeed\",\"type\":\"address\"}],\"name\":\"BackupPriceFeedSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"router\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"pair\",\"type\":\"address\"}],\"name\":\"DEXRouterSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"marketCap\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"address\",\"name\":\"updater\",\"type\":\"address\"}],\"name\":\"PriceUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"updater\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"bool\",\"name\":\"trusted\",\"type\":\"bool\"}],\"name\":\"TrustedUpdaterSet\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"PRECISION\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"PRICE_STALENESS_THRESHOLD\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"backupPriceFeed\",\"outputs\":[{\"internalType\":\"contract AggregatorV3Interface\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marketCap\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isValid\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"dexRouter\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getAllPriceData\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"marketCap\",\"type\":\"uint256\"},{\"internalType\":\"bool\",\"name\":\"isValid\",\"type\":\"bool\"},{\"internalType\":\"bool\",\"name\":\"isStale\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getMarketCap\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"marketCap\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getPriceFromDEX\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"invalidatePrice\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isPriceValid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_priceFeed\",\"type\":\"address\"}],\"name\":\"setBackupPriceFeed\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_router\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_pair\",\"type\":\"address\"}],\"name\":\"setDEXAddresses\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_updater\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"_trusted\",\"type\":\"bool\"}],\"name\":\"setTrustedUpdater\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"trustedUpdaters\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"ttustIntuitPair\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_marketCap\",\"type\":\"uint256\"}],\"name\":\"updatePrice\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Can integrate with DEX prices, external oracles, or manual price feeds\",\"errors\":{\"OwnableInvalidOwner(address)\":[{\"details\":\"The owner is not a valid owner account. (eg. `address(0)`)\"}],\"OwnableUnauthorizedAccount(address)\":[{\"details\":\"The caller account is not authorized to perform an operation.\"}]},\"kind\":\"dev\",\"methods\":{\"getMarketCap()\":{\"returns\":{\"marketCap\":\"Current market cap in USD (18 decimals)\",\"timestamp\":\"Last update timestamp\"}},\"getPrice()\":{\"returns\":{\"price\":\"Current price in USD (18 decimals)\",\"timestamp\":\"Last update timestamp\"}},\"getPriceFromDEX()\":{\"returns\":{\"price\":\"Price from DEX\"}},\"isPriceValid()\":{\"returns\":{\"_0\":\"bool True if price is valid\"}},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"setBackupPriceFeed(address)\":{\"params\":{\"_priceFeed\":\"Chainlink price feed address\"}},\"setDEXAddresses(address,address)\":{\"params\":{\"_pair\":\"TTrust/INTUIT pair address\",\"_router\":\"DEX router address\"}},\"setTrustedUpdater(address,bool)\":{\"params\":{\"_trusted\":\"Whether this address is trusted\",\"_updater\":\"Address to set trust status for\"}},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"},\"updatePrice(uint256,uint256)\":{\"params\":{\"_marketCap\":\"New market cap in USD (18 decimals)\",\"_price\":\"New price in USD (18 decimals)\"}}},\"title\":\"TTrustPriceOracle\",\"version\":1},\"userdoc\":{\"errors\":{\"TTrustPriceOracle__PriceStale()\":[{\"notice\":\"Errors //////\"}]},\"events\":{\"PriceUpdated(uint256,uint256,uint256,address)\":{\"notice\":\"Events //////\"}},\"kind\":\"user\",\"methods\":{\"getAllPriceData()\":{\"notice\":\"Get all price data\"},\"getMarketCap()\":{\"notice\":\"Get current TTrust market cap\"},\"getPrice()\":{\"notice\":\"Get current TTrust price\"},\"getPriceFromDEX()\":{\"notice\":\"Get price from DEX (if configured)\"},\"invalidatePrice()\":{\"notice\":\"Emergency function to invalidate current price\"},\"isPriceValid()\":{\"notice\":\"Check if current price is valid (not stale)\"},\"setBackupPriceFeed(address)\":{\"notice\":\"Set backup price feed (Chainlink style)\"},\"setDEXAddresses(address,address)\":{\"notice\":\"Set DEX router and pair addresses for price fetching\"},\"setTrustedUpdater(address,bool)\":{\"notice\":\"Set trusted updater status\"},\"updatePrice(uint256,uint256)\":{\"notice\":\"Update TTrust price manually (for trusted updaters)\"}},\"notice\":\"Oracle contract to get TTrust price data from multiple sources\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/TTrustPriceOracle.sol\":\"TTrustPriceOracle\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":50},\"remappings\":[],\"viaIR\":true},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {Context} from \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * The initial owner is set to the address provided by the deployer. This can\\n * later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    /**\\n     * @dev The caller account is not authorized to perform an operation.\\n     */\\n    error OwnableUnauthorizedAccount(address account);\\n\\n    /**\\n     * @dev The owner is not a valid owner account. (eg. `address(0)`)\\n     */\\n    error OwnableInvalidOwner(address owner);\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.\\n     */\\n    constructor(address initialOwner) {\\n        if (initialOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(initialOwner);\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        if (owner() != _msgSender()) {\\n            revert OwnableUnauthorizedAccount(_msgSender());\\n        }\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        if (newOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n\\n    function _contextSuffixLength() internal view virtual returns (uint256) {\\n        return 0;\\n    }\\n}\\n\",\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\"},\"contracts/TTrustPriceOracle.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity >=0.8.0 <0.9.0;\\n\\nimport { Ownable } from \\\"@openzeppelin/contracts/access/Ownable.sol\\\";\\nimport { AggregatorV3Interface } from \\\"./interfaces/AggregatorV3Interface.sol\\\";\\n\\n/**\\n * @title TTrustPriceOracle\\n * @notice Oracle contract to get TTrust price data from multiple sources\\n * @dev Can integrate with DEX prices, external oracles, or manual price feeds\\n */\\ncontract TTrustPriceOracle is Ownable {\\n    \\n    /////////////////\\n    /// Errors //////\\n    /////////////////\\n    \\n    error TTrustPriceOracle__PriceStale();\\n    error TTrustPriceOracle__InvalidPrice();\\n    error TTrustPriceOracle__OnlyTrustedUpdater();\\n    error TTrustPriceOracle__InvalidDEXAddress();\\n    \\n    //////////////////////////\\n    /// State Variables //////\\n    //////////////////////////\\n    \\n    struct PriceData {\\n        uint256 price;          // Price in USD (18 decimals)\\n        uint256 timestamp;      // Last update timestamp\\n        uint256 marketCap;      // Market cap in USD (18 decimals)\\n        bool isValid;           // Is this price valid\\n    }\\n    \\n    PriceData public currentPrice;\\n    \\n    uint256 public constant PRICE_STALENESS_THRESHOLD = 1 hours;\\n    uint256 public constant PRECISION = 1e18;\\n    \\n    // Trusted price updaters (can be set to external oracles or bots)\\n    mapping(address => bool) public trustedUpdaters;\\n    \\n    // DEX contract address for getting prices from liquidity pools\\n    address public dexRouter;\\n    address public ttustIntuitPair;\\n    \\n    // Backup price feeds (Chainlink style)\\n    AggregatorV3Interface public backupPriceFeed;\\n    \\n    /////////////////////////\\n    /// Events //////\\n    /////////////////////////\\n    \\n    event PriceUpdated(uint256 indexed price, uint256 indexed marketCap, uint256 timestamp, address updater);\\n    event TrustedUpdaterSet(address indexed updater, bool trusted);\\n    event DEXRouterSet(address indexed router, address indexed pair);\\n    event BackupPriceFeedSet(address indexed priceFeed);\\n    \\n    /////////////////\\n    /// Modifiers ///\\n    /////////////////\\n    \\n    modifier onlyTrustedUpdater() {\\n        if (!trustedUpdaters[msg.sender] && msg.sender != owner()) {\\n            revert TTrustPriceOracle__OnlyTrustedUpdater();\\n        }\\n        _;\\n    }\\n    \\n    //////////////////\\n    ////Constructor///\\n    //////////////////\\n    \\n    constructor(\\n        address _owner,\\n        uint256 _initialPrice,\\n        uint256 _initialMarketCap\\n    ) Ownable(_owner) {\\n        // Set initial price data\\n        currentPrice = PriceData({\\n            price: _initialPrice,\\n            timestamp: block.timestamp,\\n            marketCap: _initialMarketCap,\\n            isValid: true\\n        });\\n        \\n        // Owner is automatically a trusted updater\\n        trustedUpdaters[_owner] = true;\\n        \\n        emit PriceUpdated(_initialPrice, _initialMarketCap, block.timestamp, msg.sender);\\n    }\\n    \\n    /////////////////\\n    /// Functions ///\\n    /////////////////\\n    \\n    /**\\n     * @notice Update TTrust price manually (for trusted updaters)\\n     * @param _price New price in USD (18 decimals)\\n     * @param _marketCap New market cap in USD (18 decimals)\\n     */\\n    function updatePrice(uint256 _price, uint256 _marketCap) \\n        external \\n        onlyTrustedUpdater \\n    {\\n        if (_price == 0) {\\n            revert TTrustPriceOracle__InvalidPrice();\\n        }\\n        \\n        currentPrice = PriceData({\\n            price: _price,\\n            timestamp: block.timestamp,\\n            marketCap: _marketCap,\\n            isValid: true\\n        });\\n        \\n        emit PriceUpdated(_price, _marketCap, block.timestamp, msg.sender);\\n    }\\n    \\n    /**\\n     * @notice Get current TTrust price\\n     * @return price Current price in USD (18 decimals)\\n     * @return timestamp Last update timestamp\\n     */\\n    function getPrice() external view returns (uint256 price, uint256 timestamp) {\\n        if (!isPriceValid()) {\\n            revert TTrustPriceOracle__PriceStale();\\n        }\\n        \\n        return (currentPrice.price, currentPrice.timestamp);\\n    }\\n    \\n    /**\\n     * @notice Get current TTrust market cap\\n     * @return marketCap Current market cap in USD (18 decimals)\\n     * @return timestamp Last update timestamp\\n     */\\n    function getMarketCap() external view returns (uint256 marketCap, uint256 timestamp) {\\n        if (!isPriceValid()) {\\n            revert TTrustPriceOracle__PriceStale();\\n        }\\n        \\n        return (currentPrice.marketCap, currentPrice.timestamp);\\n    }\\n    \\n    /**\\n     * @notice Check if current price is valid (not stale)\\n     * @return bool True if price is valid\\n     */\\n    function isPriceValid() public view returns (bool) {\\n        return currentPrice.isValid && \\n               (block.timestamp - currentPrice.timestamp) <= PRICE_STALENESS_THRESHOLD;\\n    }\\n    \\n    /**\\n     * @notice Get price from DEX (if configured)\\n     * @return price Price from DEX\\n     */\\n    function getPriceFromDEX() external view returns (uint256 price) {\\n        // This would integrate with the existing DEX to get TTrust price\\n        // Implementation depends on the DEX structure\\n        if (dexRouter == address(0)) {\\n            return 0;\\n        }\\n        \\n        // TODO: Implement actual DEX price fetching\\n        // For now, return current price as fallback\\n        return currentPrice.price;\\n    }\\n    \\n    /////////////////////////\\n    /// Admin Functions ////\\n    /////////////////////////\\n    \\n    /**\\n     * @notice Set trusted updater status\\n     * @param _updater Address to set trust status for\\n     * @param _trusted Whether this address is trusted\\n     */\\n    function setTrustedUpdater(address _updater, bool _trusted) external onlyOwner {\\n        trustedUpdaters[_updater] = _trusted;\\n        emit TrustedUpdaterSet(_updater, _trusted);\\n    }\\n    \\n    /**\\n     * @notice Set DEX router and pair addresses for price fetching\\n     * @param _router DEX router address\\n     * @param _pair TTrust/INTUIT pair address\\n     */\\n    function setDEXAddresses(address _router, address _pair) external onlyOwner {\\n        if (_router == address(0) || _pair == address(0)) {\\n            revert TTrustPriceOracle__InvalidDEXAddress();\\n        }\\n        \\n        dexRouter = _router;\\n        ttustIntuitPair = _pair;\\n        \\n        emit DEXRouterSet(_router, _pair);\\n    }\\n    \\n    /**\\n     * @notice Set backup price feed (Chainlink style)\\n     * @param _priceFeed Chainlink price feed address\\n     */\\n    function setBackupPriceFeed(address _priceFeed) external onlyOwner {\\n        backupPriceFeed = AggregatorV3Interface(_priceFeed);\\n        emit BackupPriceFeedSet(_priceFeed);\\n    }\\n    \\n    /**\\n     * @notice Emergency function to invalidate current price\\n     */\\n    function invalidatePrice() external onlyOwner {\\n        currentPrice.isValid = false;\\n    }\\n    \\n    /////////////////////////\\n    /// Getter Functions ///\\n    /////////////////////////\\n    \\n    /**\\n     * @notice Get all price data\\n     */\\n    function getAllPriceData() \\n        external \\n        view \\n        returns (\\n            uint256 price,\\n            uint256 timestamp,\\n            uint256 marketCap,\\n            bool isValid,\\n            bool isStale\\n        ) \\n    {\\n        price = currentPrice.price;\\n        timestamp = currentPrice.timestamp;\\n        marketCap = currentPrice.marketCap;\\n        isValid = currentPrice.isValid;\\n        isStale = !isPriceValid();\\n    }\\n}\",\"keccak256\":\"0x6b0d0b1ef45606fdea83c76766cdbc1e28a586bc34b65b199c8a51f0681b1e32\",\"license\":\"MIT\"},\"contracts/interfaces/AggregatorV3Interface.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity ^0.8.0;\\n\\ninterface AggregatorV3Interface {\\n  function decimals() external view returns (uint8);\\n\\n  function description() external view returns (string memory);\\n\\n  function version() external view returns (uint256);\\n\\n  function getRoundData(\\n    uint80 _roundId\\n  ) external view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\\n\\n  function latestRoundData()\\n    external\\n    view\\n    returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\\n}\",\"keccak256\":\"0x096ce3725b0b186b8159bec9b640c0eaec864a9f0bbe8b8d07d05db69afa57c5\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60803461016157601f61094d38819003918201601f19168301926001600160401b03929091838511838610176101665781606092849260409788528339810103126101615780516001600160a01b03808216918290036101615784602084015193015193821561014957600080546001600160a01b031981168517825590928491167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08480a3855190608082019081118282101761013557916001606088938295855287815242602082015288858201520152848355426002558560035560ff1993838560045416176004558152600560205220918254161790557f4f0aa5fab7aa20059cc56368985fcf440c02c1d0229156bcfefad462cae1893d838051428152336020820152a3516107d0908161017d8239f35b634e487b7160e01b83526041600452602483fd5b8551631e4fbdf760e01b815260006004820152602490fd5b600080fd5b634e487b7160e01b600052604160045260246000fdfe608060408181526004918236101561001657600080fd5b600092833560e01c9182630758d924146106d95750816326dc17fa146106325781633611956c1461060c578163479069c7146105e3578163665d668a146105be578163715018a614610564578163733d1f001461051857816382367b2d146104215781638d8a41cd146103f85781638da5cb5b146103d057816390825c281461039c57816398d5fdca1461035a5781639d1b464a1461031c578163a3213630146102f8578163aaf5eb68146102d5578163d40cd51e1461026a578163f25b9caa1461024d578163f2fde38b146101c257508063f4d00ea6146101855763fe39b8e41461010157600080fd5b346101815780600319360112610181576101196106fe565b6024359081151580920361017d577febb3286118cce4c0f3ef184d34610d80d599cfefa41f17a7224020e54f443e0991602091610154610719565b6001600160a01b031680865260058352848620805460ff191660ff84161790559351908152a280f35b8380fd5b5080fd5b50346101815760203660031901126101815760209160ff9082906001600160a01b036101af6106fe565b1681526005855220541690519015158152f35b905034610249576020366003190112610249576101dd6106fe565b906101e6610719565b6001600160a01b0391821692831561023357505082546001600160a01b0319811683178455167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08380a380f35b51631e4fbdf760e01b8152908101849052602490fd5b8280fd5b50503461018157816003193601126101815760209051610e108152f35b83346102d25760203660031901126102d2576102846106fe565b61028c610719565b600880546001600160a01b0319166001600160a01b039290921691821790557fda259b9d79d2efc5555d9bf92c49df05ce1024c08d735b2b12c0cde619d233d78280a280f35b80fd5b50503461018157816003193601126101815760209051670de0b6b3a76400008152f35b50503461018157816003193601126101815760209061031561077e565b9051908152f35b9190503461024957826003193601126102495760809250600154916002549160ff600354925416928151948552602085015283015215156060820152f35b905082346102d257806003193601126102d25750610376610745565b1561038e575060015460025482519182526020820152f35b90516352b77e9f60e01b8152fd5b905082346102d257806003193601126102d257506103b8610745565b1561038e575060035460025482519182526020820152f35b505034610181578160031936011261018157905490516001600160a01b039091168152602090f35b50503461018157816003193601126101815760075490516001600160a01b039091168152602090f35b838334610181578060031936011261018157823560243591338452600560205260ff81852054161580610504575b6104f55781156104e65780516080810181811067ffffffffffffffff8211176104d35760016060849389937f4f0aa5fab7aa20059cc56368985fcf440c02c1d0229156bcfefad462cae1893d965286815242602082015287858201520152836001554260025584600355600160ff198254161790558051428152336020820152a380f35b634e487b7160e01b865260418752602486fd5b516315b2074d60e01b81528490fd5b51634622b56b60e11b81528490fd5b5083546001600160a01b031633141561044f565b90503461024957826003193601126102495760a09250600154916002549160ff60035491541691610547610745565b159381519586526020860152840152151560608301526080820152f35b83346102d257806003193601126102d25761057d610719565b80546001600160a01b03198116825581906001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b8390346101815781600319360112610181576105d8610719565b805460ff1916905580f35b50503461018157816003193601126101815760085490516001600160a01b039091168152602090f35b505034610181578160031936011261018157602090610629610745565b90519015158152f35b9190503461024957806003193601126102495761064d6106fe565b6001600160a01b036024358181169492908590036106d55761066d610719565b1691821580156106cd575b6106c05750508160018060a01b03198281600654161760065560075416176007557fb5874b096621348fc99ba5ebfa306d0a4fe75af261cdc3f9b05faf9d3b7b314e8380a380f35b516319f780d760e21b8152fd5b508315610678565b8580fd5b8490346101815781600319360112610181576006546001600160a01b03168152602090f35b600435906001600160a01b038216820361071457565b600080fd5b6000546001600160a01b0316330361072d57565b60405163118cdaa760e01b8152336004820152602490fd5b60ff60045416806107535790565b50600254420342811161076857610e10101590565b634e487b7160e01b600052601160045260246000fd5b6006546001600160a01b0316156107955760015490565b60009056fea26469706673582212208b12e14a67644163833cbacf03fa7b0a666246dc912da1f19fa50fd34756b3e264736f6c63430008140033",
+  "deployedBytecode": "0x608060408181526004918236101561001657600080fd5b600092833560e01c9182630758d924146106d95750816326dc17fa146106325781633611956c1461060c578163479069c7146105e3578163665d668a146105be578163715018a614610564578163733d1f001461051857816382367b2d146104215781638d8a41cd146103f85781638da5cb5b146103d057816390825c281461039c57816398d5fdca1461035a5781639d1b464a1461031c578163a3213630146102f8578163aaf5eb68146102d5578163d40cd51e1461026a578163f25b9caa1461024d578163f2fde38b146101c257508063f4d00ea6146101855763fe39b8e41461010157600080fd5b346101815780600319360112610181576101196106fe565b6024359081151580920361017d577febb3286118cce4c0f3ef184d34610d80d599cfefa41f17a7224020e54f443e0991602091610154610719565b6001600160a01b031680865260058352848620805460ff191660ff84161790559351908152a280f35b8380fd5b5080fd5b50346101815760203660031901126101815760209160ff9082906001600160a01b036101af6106fe565b1681526005855220541690519015158152f35b905034610249576020366003190112610249576101dd6106fe565b906101e6610719565b6001600160a01b0391821692831561023357505082546001600160a01b0319811683178455167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08380a380f35b51631e4fbdf760e01b8152908101849052602490fd5b8280fd5b50503461018157816003193601126101815760209051610e108152f35b83346102d25760203660031901126102d2576102846106fe565b61028c610719565b600880546001600160a01b0319166001600160a01b039290921691821790557fda259b9d79d2efc5555d9bf92c49df05ce1024c08d735b2b12c0cde619d233d78280a280f35b80fd5b50503461018157816003193601126101815760209051670de0b6b3a76400008152f35b50503461018157816003193601126101815760209061031561077e565b9051908152f35b9190503461024957826003193601126102495760809250600154916002549160ff600354925416928151948552602085015283015215156060820152f35b905082346102d257806003193601126102d25750610376610745565b1561038e575060015460025482519182526020820152f35b90516352b77e9f60e01b8152fd5b905082346102d257806003193601126102d257506103b8610745565b1561038e575060035460025482519182526020820152f35b505034610181578160031936011261018157905490516001600160a01b039091168152602090f35b50503461018157816003193601126101815760075490516001600160a01b039091168152602090f35b838334610181578060031936011261018157823560243591338452600560205260ff81852054161580610504575b6104f55781156104e65780516080810181811067ffffffffffffffff8211176104d35760016060849389937f4f0aa5fab7aa20059cc56368985fcf440c02c1d0229156bcfefad462cae1893d965286815242602082015287858201520152836001554260025584600355600160ff198254161790558051428152336020820152a380f35b634e487b7160e01b865260418752602486fd5b516315b2074d60e01b81528490fd5b51634622b56b60e11b81528490fd5b5083546001600160a01b031633141561044f565b90503461024957826003193601126102495760a09250600154916002549160ff60035491541691610547610745565b159381519586526020860152840152151560608301526080820152f35b83346102d257806003193601126102d25761057d610719565b80546001600160a01b03198116825581906001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b8390346101815781600319360112610181576105d8610719565b805460ff1916905580f35b50503461018157816003193601126101815760085490516001600160a01b039091168152602090f35b505034610181578160031936011261018157602090610629610745565b90519015158152f35b9190503461024957806003193601126102495761064d6106fe565b6001600160a01b036024358181169492908590036106d55761066d610719565b1691821580156106cd575b6106c05750508160018060a01b03198281600654161760065560075416176007557fb5874b096621348fc99ba5ebfa306d0a4fe75af261cdc3f9b05faf9d3b7b314e8380a380f35b516319f780d760e21b8152fd5b508315610678565b8580fd5b8490346101815781600319360112610181576006546001600160a01b03168152602090f35b600435906001600160a01b038216820361071457565b600080fd5b6000546001600160a01b0316330361072d57565b60405163118cdaa760e01b8152336004820152602490fd5b60ff60045416806107535790565b50600254420342811161076857610e10101590565b634e487b7160e01b600052601160045260246000fd5b6006546001600160a01b0316156107955760015490565b60009056fea26469706673582212208b12e14a67644163833cbacf03fa7b0a666246dc912da1f19fa50fd34756b3e264736f6c63430008140033",
+  "devdoc": {
+    "details": "Can integrate with DEX prices, external oracles, or manual price feeds",
+    "errors": {
+      "OwnableInvalidOwner(address)": [
+        {
+          "details": "The owner is not a valid owner account. (eg. `address(0)`)"
+        }
+      ],
+      "OwnableUnauthorizedAccount(address)": [
+        {
+          "details": "The caller account is not authorized to perform an operation."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {
+      "getMarketCap()": {
+        "returns": {
+          "marketCap": "Current market cap in USD (18 decimals)",
+          "timestamp": "Last update timestamp"
+        }
+      },
+      "getPrice()": {
+        "returns": {
+          "price": "Current price in USD (18 decimals)",
+          "timestamp": "Last update timestamp"
+        }
+      },
+      "getPriceFromDEX()": {
+        "returns": {
+          "price": "Price from DEX"
+        }
+      },
+      "isPriceValid()": {
+        "returns": {
+          "_0": "bool True if price is valid"
+        }
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "setBackupPriceFeed(address)": {
+        "params": {
+          "_priceFeed": "Chainlink price feed address"
+        }
+      },
+      "setDEXAddresses(address,address)": {
+        "params": {
+          "_pair": "TTrust/INTUIT pair address",
+          "_router": "DEX router address"
+        }
+      },
+      "setTrustedUpdater(address,bool)": {
+        "params": {
+          "_trusted": "Whether this address is trusted",
+          "_updater": "Address to set trust status for"
+        }
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      },
+      "updatePrice(uint256,uint256)": {
+        "params": {
+          "_marketCap": "New market cap in USD (18 decimals)",
+          "_price": "New price in USD (18 decimals)"
+        }
+      }
+    },
+    "title": "TTrustPriceOracle",
+    "version": 1
+  },
+  "userdoc": {
+    "errors": {
+      "TTrustPriceOracle__PriceStale()": [
+        {
+          "notice": "Errors //////"
+        }
+      ]
+    },
+    "events": {
+      "PriceUpdated(uint256,uint256,uint256,address)": {
+        "notice": "Events //////"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "getAllPriceData()": {
+        "notice": "Get all price data"
+      },
+      "getMarketCap()": {
+        "notice": "Get current TTrust market cap"
+      },
+      "getPrice()": {
+        "notice": "Get current TTrust price"
+      },
+      "getPriceFromDEX()": {
+        "notice": "Get price from DEX (if configured)"
+      },
+      "invalidatePrice()": {
+        "notice": "Emergency function to invalidate current price"
+      },
+      "isPriceValid()": {
+        "notice": "Check if current price is valid (not stale)"
+      },
+      "setBackupPriceFeed(address)": {
+        "notice": "Set backup price feed (Chainlink style)"
+      },
+      "setDEXAddresses(address,address)": {
+        "notice": "Set DEX router and pair addresses for price fetching"
+      },
+      "setTrustedUpdater(address,bool)": {
+        "notice": "Set trusted updater status"
+      },
+      "updatePrice(uint256,uint256)": {
+        "notice": "Update TTrust price manually (for trusted updaters)"
+      }
+    },
+    "notice": "Oracle contract to get TTrust price data from multiple sources",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 8,
+        "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 6798,
+        "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+        "label": "currentPrice",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_struct(PriceData)6795_storage"
+      },
+      {
+        "astId": 6808,
+        "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+        "label": "trustedUpdaters",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_address,t_bool)"
+      },
+      {
+        "astId": 6810,
+        "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+        "label": "dexRouter",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_address"
+      },
+      {
+        "astId": 6812,
+        "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+        "label": "ttustIntuitPair",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_address"
+      },
+      {
+        "astId": 6815,
+        "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+        "label": "backupPriceFeed",
+        "offset": 0,
+        "slot": "8",
+        "type": "t_contract(AggregatorV3Interface)7208"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_contract(AggregatorV3Interface)7208": {
+        "encoding": "inplace",
+        "label": "contract AggregatorV3Interface",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_struct(PriceData)6795_storage": {
+        "encoding": "inplace",
+        "label": "struct TTrustPriceOracle.PriceData",
+        "members": [
+          {
+            "astId": 6788,
+            "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+            "label": "price",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 6790,
+            "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+            "label": "timestamp",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 6792,
+            "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+            "label": "marketCap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 6794,
+            "contract": "contracts/TTrustPriceOracle.sol:TTrustPriceOracle",
+            "label": "isValid",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

@@ -1,178 +1,217 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { BarChart3, Clock, DollarSign, Filter, Plus, Search, Target } from "lucide-react";
-import { useAccount } from "wagmi";
+import { Filter, Plus, Search, Target } from "lucide-react";
+import { formatEther, parseEther } from "viem";
+import { useAccount, useWalletClient } from "wagmi";
 import { ParticleBackground } from "~~/components/ParticleBackground";
+import { SimpleMarketCard } from "~~/components/SimpleMarketCard";
 import { Address } from "~~/components/scaffold-eth";
 import { Button } from "~~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~~/components/ui/card";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
-const TTrustPredictionsPage = () => {
+const PredictionMarketsPage = () => {
   const { address } = useAccount();
   const [activeTab, setActiveTab] = useState("markets");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTab, setSelectedTab] = useState<"ttrust" | "metrics">("ttrust");
+
+  // Form state for creating markets
+  const [marketForm, setMarketForm] = useState({
+    category: "ttrust",
+    predictionQuestion: "",
+    targetValue: "",
+    deadline: "",
+    liquidityAmount: "",
+    description: "",
+  });
 
   const tabs = [
-    { id: "markets", label: "📊 All Markets", icon: "📈" },
-    { id: "create", label: "➕ Create Market", icon: "🎯" },
-    { id: "portfolio", label: "💼 My Portfolio", icon: "👤" },
+    { id: "markets", label: "All Markets", icon: "📈" },
+    { id: "create", label: "➕ Create Market", icon: "" },
+    { id: "portfolio", label: "💼 My Portfolio", icon: "" },
   ];
 
-  // Mock data for demonstration - in real app this would come from contracts
-  const ttustMarkets = [
+  // Read real markets from deployed native factory
+  const { data: marketCount, isLoading: isLoadingCount } = useScaffoldReadContract({
+    contractName: "PredictionFactoryNative",
+    functionName: "getMarketCount",
+  });
+
+  const { data: activeMarketsData, isLoading: isLoadingMarkets } = useScaffoldReadContract({
+    contractName: "PredictionFactoryNative",
+    functionName: "getActiveMarkets",
+    args: [0n, marketCount || 10n],
+  });
+
+  // Create new market with native factory
+  const { writeContractAsync: createTTrustMarket } = useScaffoldWriteContract("PredictionFactoryNative");
+
+  const { data: walletClient } = useWalletClient();
+
+  // ABI for trading functions
+  const MARKET_ABI = [
     {
-      id: 1,
-      title: "TTrust will reach $1M market cap by March 2025",
-      description: "Prediction on whether TTrust token will achieve $1 million market cap within 3 months",
-      currentPrice: "$0.52",
-      targetValue: "$1,000,000",
-      currentMarketCap: "$520,000",
-      deadline: "March 15, 2025",
-      timeLeft: "89 days",
-      yesPrice: "0.003 TTRUST",
-      noPrice: "0.004 TTRUST",
-      yesPercentage: 43,
-      noPercentage: 57,
-      totalLiquidity: "2.5 TTRUST",
-      participants: 28,
-      isActive: true,
-      predictionType: "MARKET_CAP_ABOVE",
+      inputs: [],
+      name: "buyYes",
+      outputs: [],
+      stateMutability: "payable",
+      type: "function",
     },
     {
-      id: 2,
-      title: "TTrust price will exceed $2.00 by June 2025",
-      description: "Will TTrust token price surpass $2.00 before June 2025?",
-      currentPrice: "$0.52",
-      targetValue: "$2.00",
-      deadline: "June 30, 2025",
-      timeLeft: "180 days",
-      yesPrice: "0.002 TTRUST",
-      noPrice: "0.005 TTRUST",
-      yesPercentage: 29,
-      noPercentage: 71,
-      totalLiquidity: "1.8 TTRUST",
-      participants: 15,
-      isActive: true,
-      predictionType: "PRICE_ABOVE",
+      inputs: [],
+      name: "buyNo",
+      outputs: [],
+      stateMutability: "payable",
+      type: "function",
     },
-  ];
+  ] as const;
 
-  const metricsMarkets = [
-    {
-      id: 1,
-      title: "Intuition will have 50K+ atoms by April 2025",
-      description: "Will the Intuition blockchain reach 50,000 atoms created before April?",
-      currentCount: "12,847",
-      targetValue: "50,000",
-      metricType: "ATOMS",
-      deadline: "April 1, 2025",
-      timeLeft: "120 days",
-      yesPrice: "0.0025 TTRUST",
-      noPrice: "0.0035 TTRUST",
-      yesPercentage: 42,
-      noPercentage: 58,
-      totalLiquidity: "1.2 TTRUST",
-      participants: 19,
-      isActive: true,
-      dailyGrowth: "+156",
-    },
-    {
-      id: 2,
-      title: "Triplets count will exceed 25K this month",
-      description: "Will Intuition create more than 25,000 triplets before end of January?",
-      currentCount: "8,934",
-      targetValue: "25,000",
-      metricType: "TRIPLETS",
-      deadline: "January 31, 2025",
-      timeLeft: "12 days",
-      yesPrice: "0.001 TTRUST",
-      noPrice: "0.006 TTRUST",
-      yesPercentage: 14,
-      noPercentage: 86,
-      totalLiquidity: "0.9 TTRUST",
-      participants: 11,
-      isActive: true,
-      dailyGrowth: "+67",
-    },
-  ];
+  // Trading functions for native TTRUST markets
+  const handleBuyYes = async (marketAddress: string) => {
+    if (!address || !walletClient) {
+      alert("Please connect your wallet first");
+      return;
+    }
 
-  const MarketCard = ({ market, type }: { market: any; type: "ttrust" | "metrics" }) => (
-    <Card className="bg-white/10 backdrop-blur-lg border-white/20 shadow-xl text-white hover:border-blue-500/50 transition-all">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="text-lg font-bold text-white mb-2">{market.title}</CardTitle>
-            <p className="text-sm text-gray-300 mb-3">{market.description}</p>
-          </div>
-          <div className="flex items-center space-x-2 text-xs text-gray-400">
-            <Clock className="h-4 w-4" />
-            <span>{market.timeLeft}</span>
-          </div>
-        </div>
+    try {
+      // Ask user how much TTRUST they want to spend
+      const amountStr = prompt("How much TTRUST do you want to spend on YES tokens?", "0.1");
+      if (!amountStr || parseFloat(amountStr) <= 0) return;
 
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          {type === "ttrust" ? (
-            <>
-              <div>
-                <span className="text-gray-400">Current Price:</span>
-                <span className="text-green-400 font-semibold ml-2">{market.currentPrice}</span>
-              </div>
-              <div>
-                <span className="text-gray-400">Target:</span>
-                <span className="text-blue-400 font-semibold ml-2">{market.targetValue}</span>
-              </div>
-              <div>
-                <span className="text-gray-400">Market Cap:</span>
-                <span className="text-purple-400 font-semibold ml-2">{market.currentMarketCap}</span>
-              </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <span className="text-gray-400">Current:</span>
-                <span className="text-green-400 font-semibold ml-2">{market.currentCount}</span>
-              </div>
-              <div>
-                <span className="text-gray-400">Target:</span>
-                <span className="text-blue-400 font-semibold ml-2">{market.targetValue}</span>
-              </div>
-              <div>
-                <span className="text-gray-400">Daily Growth:</span>
-                <span className="text-emerald-400 font-semibold ml-2">{market.dailyGrowth}</span>
-              </div>
-            </>
-          )}
-          <div>
-            <span className="text-gray-400">Deadline:</span>
-            <span className="text-orange-400 font-semibold ml-2">{market.deadline}</span>
-          </div>
-        </div>
-      </CardHeader>
+      const amountWei = parseEther(amountStr);
 
-      <CardContent>
-        {/* Prediction Outcome Sections */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-center">
-            <div className="text-green-400 font-semibold">YES</div>
-            <div className="text-sm text-gray-300">{market.yesPrice}</div>
-          </div>
-          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-center">
-            <div className="text-red-400 font-semibold">NO</div>
-            <div className="text-sm text-gray-300">{market.noPrice}</div>
-          </div>
-        </div>
+      console.log("💚 Buying YES tokens for market:", marketAddress);
+      console.log("💰 Amount:", amountStr, "TTRUST");
 
-        {/* Market Stats */}
-        <div className="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-white/10">
-          <span>💧 {market.totalLiquidity} liquidity</span>
-          <span>👥 {market.participants} participants</span>
-        </div>
-      </CardContent>
-    </Card>
-  );
+      const tx = await walletClient.writeContract({
+        address: marketAddress as `0x${string}`,
+        abi: MARKET_ABI,
+        functionName: "buyYes",
+        value: amountWei,
+      });
+
+      console.log("✅ YES purchase transaction sent:", tx);
+      alert(`YES purchase successful! Transaction: ${tx}`);
+
+      // The page will auto-refresh and show updated balances
+    } catch (error) {
+      console.error("❌ Error buying YES tokens:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Error buying YES: ${errorMessage}`);
+    }
+  };
+
+  const handleBuyNo = async (marketAddress: string) => {
+    if (!address || !walletClient) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    try {
+      // Ask user how much TTRUST they want to spend
+      const amountStr = prompt("How much TTRUST do you want to spend on NO tokens?", "0.1");
+      if (!amountStr || parseFloat(amountStr) <= 0) return;
+
+      const amountWei = parseEther(amountStr);
+
+      console.log("🔴 Buying NO tokens for market:", marketAddress);
+      console.log("💰 Amount:", amountStr, "TTRUST");
+
+      const tx = await walletClient.writeContract({
+        address: marketAddress as `0x${string}`,
+        abi: MARKET_ABI,
+        functionName: "buyNo",
+        value: amountWei,
+      });
+
+      console.log("✅ NO purchase transaction sent:", tx);
+      alert(`NO purchase successful! Transaction: ${tx}`);
+
+      // The page will auto-refresh and show updated balances
+    } catch (error) {
+      console.error("❌ Error buying NO tokens:", error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Error buying NO: ${errorMessage}`);
+    }
+  };
+
+  // Handle market creation
+  const handleCreateMarket = async () => {
+    if (!address) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    try {
+      const deadlineTimestamp = Math.floor(new Date(marketForm.deadline).getTime() / 1000);
+      const targetValueWei = parseEther(marketForm.targetValue);
+      const liquidityWei = parseEther(marketForm.liquidityAmount);
+      const creationFee = parseEther("0.001"); // 0.001 TTRUST creation fee
+      const totalTTrust = liquidityWei + creationFee;
+
+      console.log("Creating native TTRUST market...");
+      console.log("Liquidity:", marketForm.liquidityAmount, "TTRUST");
+      console.log("Creation fee: 0.001 TTRUST");
+      console.log("Total TTRUST needed:", formatEther(totalTTrust));
+
+      // Create the market with native TTRUST (no approve needed!)
+      const marketTx = await createTTrustMarket({
+        functionName: "createTTrustMarket",
+        args: [
+          0, // PredictionType (0 = MARKET_CAP_ABOVE)
+          targetValueWei, // Target value
+          BigInt(deadlineTimestamp), // Deadline
+          marketForm.predictionQuestion, // Question (used as title)
+          marketForm.predictionQuestion, // Question
+        ],
+        value: totalTTrust, // Send TTRUST directly!
+      });
+      console.log("Native market creation transaction sent:", marketTx);
+
+      // Reset form
+      setMarketForm({
+        category: "ttrust",
+        predictionQuestion: "",
+        targetValue: "",
+        deadline: "",
+        liquidityAmount: "",
+        description: "",
+      });
+
+      alert("Market created successfully!");
+    } catch (error) {
+      console.error("Failed to create market:", error);
+      alert("Failed to create market. Please try again.");
+    }
+  };
+
+  // Process real markets data from contracts
+  // Try different ways to extract market addresses based on contract return format
+  let marketAddresses: string[] = [];
+
+  if (activeMarketsData) {
+    // If it's an array with [markets, total] structure
+    if (Array.isArray(activeMarketsData) && activeMarketsData.length >= 1) {
+      marketAddresses = Array.from(activeMarketsData[0] || []);
+    }
+    // If it's directly an array of addresses
+    else if (Array.isArray(activeMarketsData)) {
+      marketAddresses = Array.from(activeMarketsData);
+    }
+  }
+
+  // Debug logging
+  console.log("Market count:", marketCount);
+  console.log("Is loading count:", isLoadingCount);
+  console.log("Is loading markets:", isLoadingMarkets);
+  console.log("Active markets data:", activeMarketsData);
+  console.log("Market addresses:", marketAddresses);
+  console.log("marketAddresses.length:", marketAddresses?.length);
+  console.log("Type of activeMarketsData:", typeof activeMarketsData);
+  console.log("Is activeMarketsData an array?", Array.isArray(activeMarketsData));
+
+  // Market data is now handled directly by MarketCard components
 
   return (
     <>
@@ -186,13 +225,13 @@ const TTrustPredictionsPage = () => {
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold mb-2">
                 <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                  TTrust & Metrics Markets
+                  Prediction Markets
                 </span>
               </h1>
-              <p className="text-xl text-gray-300">Advanced Prediction Markets for Intuition Ecosystem</p>
+              <p className="text-xl text-gray-300">Decentralized Prediction Markets on Intuition</p>
               <p className="text-gray-400 max-w-2xl mx-auto mt-2">
-                Predict TTrust token performance and Intuition blockchain metrics. Trade on future outcomes with
-                real-time data and decentralized resolution.
+                Create and trade prediction markets for TTrust token performance and blockchain metrics with real-time
+                data and decentralized resolution.
               </p>
               {address && (
                 <div className="flex justify-center items-center mt-4">
@@ -244,74 +283,64 @@ const TTrustPredictionsPage = () => {
                     </Button>
                   </div>
 
-                  {/* Sub-tab Navigation */}
-                  <div className="flex justify-center mb-8">
-                    <div className="bg-white/10 backdrop-blur-lg border-white/20 p-1 rounded-2xl">
-                      <button
-                        onClick={() => setSelectedTab("ttrust")}
-                        className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
-                          selectedTab === "ttrust"
-                            ? "bg-white/20 text-white shadow-lg"
-                            : "text-gray-300 hover:text-white hover:bg-white/10"
-                        }`}
-                      >
-                        <DollarSign className="h-4 w-4 mr-2 inline" />
-                        TTrust Markets
-                      </button>
-                      <button
-                        onClick={() => setSelectedTab("metrics")}
-                        className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
-                          selectedTab === "metrics"
-                            ? "bg-white/20 text-white shadow-lg"
-                            : "text-gray-300 hover:text-white hover:bg-white/10"
-                        }`}
-                      >
-                        <BarChart3 className="h-4 w-4 mr-2 inline" />
-                        Metrics Markets
-                      </button>
-                    </div>
-                  </div>
-
                   {/* Market Grid */}
                   <div className="grid lg:grid-cols-2 gap-8 mb-12">
-                    {selectedTab === "ttrust" ? (
-                      <>
-                        {ttustMarkets.map(market => (
-                          <MarketCard key={market.id} market={market} type="ttrust" />
-                        ))}
-                      </>
+                    {isLoadingCount || isLoadingMarkets ? (
+                      <div className="col-span-2 text-center py-12">
+                        <h3 className="text-xl text-gray-300 mb-4">Loading markets...</h3>
+                        <p className="text-gray-400">
+                          Count: {isLoadingCount ? "Loading..." : marketCount?.toString()}
+                          <br />
+                          Markets: {isLoadingMarkets ? "Loading..." : "Loaded"}
+                        </p>
+                      </div>
+                    ) : marketAddresses && marketAddresses.length > 0 ? (
+                      marketAddresses.map((marketAddress: string, index: number) => (
+                        <SimpleMarketCard
+                          key={index}
+                          marketAddress={marketAddress}
+                          index={index}
+                          onBuyYes={handleBuyYes}
+                          onBuyNo={handleBuyNo}
+                          userAddress={address}
+                        />
+                      ))
                     ) : (
-                      <>
-                        {metricsMarkets.map(market => (
-                          <MarketCard key={market.id} market={market} type="metrics" />
-                        ))}
-                      </>
-                    )}
-                  </div>
-
-                  {/* Empty State */}
-                  <Card className="bg-gradient-to-r from-slate-900/50 to-slate-800/50 backdrop-blur-lg border-white/20 shadow-xl text-white">
-                    <CardContent className="p-12 text-center">
-                      <Target className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-2xl font-bold mb-4">More Markets Coming Soon</h3>
-                      <p className="text-gray-300 mb-6">
-                        These are example TTrust & Metrics markets. Create your own advanced prediction markets!
-                      </p>
-                      <div className="flex gap-4 justify-center">
+                      <div className="col-span-2 text-center py-12">
+                        <h3 className="text-xl text-gray-300 mb-4">No prediction yet</h3>
+                        <p className="text-gray-400 mb-6">
+                          Create the first prediction !
+                          <br />
+                          <small className="text-gray-500">
+                            Debug: Count={marketCount?.toString()}, Addresses={marketAddresses?.length || 0}
+                          </small>
+                        </p>
                         <Button
                           onClick={() => setActiveTab("create")}
                           className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
                         >
-                          Create Market
+                          Create Prediction
                         </Button>
-                        <Link href="/predictions">
-                          <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white">
-                            Try Classic Markets
-                          </Button>
-                        </Link>
                       </div>
-                    </CardContent>
-                  </Card>
+                    )}
+                  </div>
+
+                  {/* Empty State - Only show when no markets and not loading */}
+                  {!isLoadingCount && !isLoadingMarkets && (!marketAddresses || marketAddresses.length === 0) && (
+                    <Card className="bg-gradient-to-r from-slate-900/50 to-slate-800/50 backdrop-blur-lg border-white/20 shadow-xl text-white">
+                      <CardContent className="p-12 text-center">
+                        <Target className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                        <h3 className="text-2xl font-bold mb-4">No Active Prediction</h3>
+                        <p className="text-gray-300 mb-6">Start trading by creating your first prediction market!</p>
+                        <Button
+                          onClick={() => setActiveTab("create")}
+                          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+                        >
+                          Create Prediction
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               )}
 
@@ -368,7 +397,7 @@ const TTrustPredictionsPage = () => {
                           <div className="space-y-3">
                             <div className="flex justify-between">
                               <span>Creation fee:</span>
-                              <span className="text-purple-400">0.005 TTRUST</span>
+                              <span className="text-purple-400">0.001 TTRUST</span>
                             </div>
                             <div className="flex justify-between">
                               <span>Resolution buffer:</span>
@@ -377,21 +406,102 @@ const TTrustPredictionsPage = () => {
                           </div>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
 
+                  {/* Market Creation Form */}
+                  <Card className="bg-gradient-to-r from-gray-900/50 to-gray-800/50 backdrop-blur-lg border-white/20 shadow-xl text-white">
+                    <CardHeader>
+                      <CardTitle className="text-2xl font-bold text-white">📝 Create New Market</CardTitle>
+                      <p className="text-gray-300">Fill out the form below to create your prediction market</p>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-6">
-                        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white p-6 h-auto">
-                          <div className="text-center">
-                            <DollarSign className="h-8 w-8 mx-auto mb-2" />
-                            <div className="font-semibold">TTrust Prediction</div>
-                            <div className="text-sm opacity-90">Price, Market Cap, Volume</div>
-                          </div>
-                        </Button>
-                        <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white p-6 h-auto">
-                          <div className="text-center">
-                            <BarChart3 className="h-8 w-8 mx-auto mb-2" />
-                            <div className="font-semibold">Metrics Prediction</div>
-                            <div className="text-sm opacity-90">Atoms, Triplets, Signals</div>
-                          </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                          <select
+                            value={marketForm.category}
+                            onChange={e => setMarketForm({ ...marketForm, category: e.target.value })}
+                            className="w-full bg-white/10 backdrop-blur-lg border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="ttrust">TTrust Token</option>
+                            <option value="metrics">Blockchain Metrics</option>
+                            <option value="general">General Prediction</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Target Value</label>
+                          <input
+                            type="number"
+                            step="0.000001"
+                            placeholder="e.g., 10 (for $10), 1000000 (for 1M users)..."
+                            value={marketForm.targetValue}
+                            onChange={e => setMarketForm({ ...marketForm, targetValue: e.target.value })}
+                            className="w-full bg-white/10 backdrop-blur-lg border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">Deadline</label>
+                          <input
+                            type="datetime-local"
+                            value={marketForm.deadline}
+                            onChange={e => setMarketForm({ ...marketForm, deadline: e.target.value })}
+                            className="w-full bg-white/10 backdrop-blur-lg border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">
+                            Initial Liquidity (TRUST)
+                          </label>
+                          <input
+                            type="number"
+                            step="0.001"
+                            placeholder="e.g., 0.1"
+                            value={marketForm.liquidityAmount}
+                            onChange={e => setMarketForm({ ...marketForm, liquidityAmount: e.target.value })}
+                            className="w-full bg-white/10 backdrop-blur-lg border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Prediction Question</label>
+                        <input
+                          type="text"
+                          placeholder="e.g., Will TTrust reach $10 by December 2024?, Will Intuition have 100K users by Q2?"
+                          value={marketForm.predictionQuestion}
+                          onChange={e => setMarketForm({ ...marketForm, predictionQuestion: e.target.value })}
+                          className="w-full bg-white/10 backdrop-blur-lg border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Market Description</label>
+                        <textarea
+                          placeholder="Describe your prediction market..."
+                          value={marketForm.description}
+                          onChange={e => setMarketForm({ ...marketForm, description: e.target.value })}
+                          rows={3}
+                          className="w-full bg-white/10 backdrop-blur-lg border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div className="flex justify-center">
+                        <Button
+                          onClick={handleCreateMarket}
+                          disabled={
+                            !address ||
+                            !marketForm.predictionQuestion ||
+                            !marketForm.targetValue ||
+                            !marketForm.deadline ||
+                            !marketForm.liquidityAmount
+                          }
+                          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 text-lg disabled:opacity-50"
+                        >
+                          🚀 Create Market
                         </Button>
                       </div>
                     </CardContent>
@@ -401,7 +511,7 @@ const TTrustPredictionsPage = () => {
 
               {activeTab === "portfolio" && (
                 <div>
-                  <h2 className="text-3xl font-bold mb-6 text-white">💼 My TTrust Portfolio</h2>
+                  <h2 className="text-3xl font-bold mb-6 text-white">💼 My Portfolio</h2>
 
                   {!address ? (
                     <Card className="bg-white/10 backdrop-blur-lg border-white/20 shadow-xl text-white">
@@ -440,19 +550,6 @@ const TTrustPredictionsPage = () => {
                           <p className="text-gray-300 mb-6">
                             Start trading TTrust & Metrics markets to see your positions here!
                           </p>
-                          <div className="flex gap-4 justify-center">
-                            <Button
-                              onClick={() => setActiveTab("markets")}
-                              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3"
-                            >
-                              💎 Browse TTrust Markets
-                            </Button>
-                            <Link href="/predictions">
-                              <Button className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-3">
-                                📊 Classic Markets
-                              </Button>
-                            </Link>
-                          </div>
                         </CardContent>
                       </Card>
                     </div>
@@ -470,7 +567,7 @@ const TTrustPredictionsPage = () => {
                     <div className="text-3xl mb-4">🎯</div>
                     <h3 className="text-xl font-semibold text-white mb-3">Choose Prediction</h3>
                     <p className="text-gray-300">
-                      Select from TTrust price/market cap predictions or Intuition blockchain metrics forecasts.
+                      Select from Trust price/market cap predictions or Intuition blockchain metrics forecasts.
                     </p>
                   </CardContent>
                 </Card>
@@ -491,7 +588,7 @@ const TTrustPredictionsPage = () => {
                     <div className="text-3xl mb-4">🏆</div>
                     <h3 className="text-xl font-semibold text-white mb-3">Earn Rewards</h3>
                     <p className="text-gray-300">
-                      When the prediction resolves, winning token holders receive ETH rewards proportional to their
+                      When the prediction resolves, winning token holders receive TRUST rewards proportional to their
                       stake.
                     </p>
                   </CardContent>
@@ -505,4 +602,4 @@ const TTrustPredictionsPage = () => {
   );
 };
 
-export default TTrustPredictionsPage;
+export default PredictionMarketsPage;

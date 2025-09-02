@@ -31,14 +31,14 @@ const config: HardhatUserConfig = {
           viaIR: true,
           optimizer: {
             enabled: true,
-            // https://docs.soliditylang.org/en/latest/using-the-compiler.html#optimizer-options
-            runs: 200,
+            // Optimized for deployment (lower code size)
+            runs: 50,
           },
         },
       },
     ],
   },
-  defaultNetwork: "localhost",
+  defaultNetwork: "intuitionTestnet",
   namedAccounts: {
     deployer: {
       // By default, it will take the first Hardhat account as the deployer
@@ -125,6 +125,11 @@ const config: HardhatUserConfig = {
     celoAlfajores: {
       url: "https://alfajores-forno.celo-testnet.org",
       accounts: [deployerPrivateKey],
+    },
+    intuitionTestnet: {
+      url: "https://testnet.rpc.intuition.systems",
+      accounts: ["0x2558c6fab04c4ef8c42e54b48dfffb15624acf6225c1cf81a6cf7292197a730f"],
+      chainId: 13579,
     },
   },
   // Configuration for harhdat-verify plugin

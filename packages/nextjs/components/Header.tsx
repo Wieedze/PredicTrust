@@ -29,26 +29,10 @@ export const Header = () => {
             </div>
           </Link>
 
-          {/* Navigation & Wallet Connection */}
-          <div className="flex items-center gap-6">
-            {/* Navigation Links */}
-            <nav className="hidden md:flex items-center gap-6">
-              <Link href="/predictions" className="text-gray-300 hover:text-white transition-colors font-medium">
-                Classic Markets
-              </Link>
-              <Link
-                href="/ttrust-predictions"
-                className="text-gray-300 hover:text-blue-400 transition-colors font-medium"
-              >
-                TTrust & Metrics
-              </Link>
-            </nav>
-
-            {/* Wallet Connection */}
-            <div className="flex items-center gap-4">
-              <RainbowKitCustomConnectButton />
-              {isLocalNetwork && <FaucetButton />}
-            </div>
+          {/* Wallet Connection Only */}
+          <div className="flex items-center gap-4">
+            <RainbowKitCustomConnectButton />
+            {isLocalNetwork && <FaucetButton />}
           </div>
         </div>
       </div>
